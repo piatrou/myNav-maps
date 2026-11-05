@@ -6,11 +6,11 @@ from mapspack import search
 from mapspack.search import nearest, query
 from tests.osm import write_osm
 
-LEMESOS = "Λεμεσός"
-LEMESOS_CAPS = "ΛΕΜΕΣΌΣ"
-LEMESOS_CYRILLIC = "Лемесос"
-ATHINON = "Οδός Αθηνών"
-ZINON = "Ζήνων"
+LEMESOS = "\u039b\u03b5\u03bc\u03b5\u03c3\u03cc\u03c2"
+LEMESOS_CAPS = "\u039b\u0395\u039c\u0395\u03a3\u038c\u03a3"
+LEMESOS_CYRILLIC = "\u041b\u0435\u043c\u0435\u0441\u043e\u0441"
+ATHINON = "\u039f\u03b4\u03cc\u03c2 \u0391\u03b8\u03b7\u03bd\u03ce\u03bd"
+ZINON = "\u0396\u03ae\u03bd\u03c9\u03bd"
 
 
 @pytest.fixture
@@ -24,6 +24,7 @@ def fixture_pbf(tmp_path):
         {"id": 6, "lat": 34.72, "lon": 33.15, "tags": {"place": "village", "name": "Agios Tychonas"}},
         {"id": 7, "lat": 35.00, "lon": 32.50, "tags": {"place": "village", "name": "Agios Ioannis"}},
         {"id": 8, "lat": 34.6802, "lon": 33.0402, "tags": {"amenity": "cafe", "name": "Athinon 123 Cafe"}},
+        {"id": 10, "lat": 34.70, "lon": 33.10, "tags": {"addr:street": ATHINON, "addr:housenumber": "120"}},
         {"id": 9, "lat": 34.6803, "lon": 33.0403, "tags": {"highway": "bus_stop", "name": "Athinon 12 stop"}},
     ], ways=[{"id": 20, "nodes": [2, 3], "tags": {"highway": "residential", "name": ATHINON}}])
 
@@ -89,3 +90,7 @@ def test_bus_stops_are_not_searchable(db):
 
 def test_place_gets_nearest_city(db):
     assert query(db, "zinon", None)[0]["city"] == "Limassol"
+
+
+def test_exact_house_number_first(db):
+    assert query(db, "athinon 12", (34.70, 33.10))[0]["housenumber"] == "12"

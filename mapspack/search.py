@@ -180,9 +180,12 @@ def query(db: Path, text: str, near: tuple[float, float] | None, limit: int = 8)
     lat, lon = near if near else (0.0, 0.0)
     k = math.cos(math.radians(lat)) ** 2
     dist = "(p.lat - ?) * (p.lat - ?) + (p.lon - ?) * (p.lon - ?) * ?, " if near else ""
-    rank = "p.kind != 'address', p.rank" if q.split()[-1][:1].isdigit() else "p.rank"
+    number = q.split()[-1] if q.split()[-1][:1].isdigit() else None
+    rank = "p.kind != 'address', lower(coalesce(p.housenumber, '')) != ?, p.rank" if number else "p.rank"
     sql = f"SELECT p.* FROM place p WHERE p.id IN ({match}) ORDER BY {rank}, {dist}p.name LIMIT ?"
-    params: list = [arg] if arg is not None else [q, q + "￿"]
+    params: list = [arg] if arg is not None else [q, q + "\uffff"]
+    if number:
+        params.append(number)
     if near:
         params += [lat, lat, lon, lon, k]
     with _connect(db) as c:

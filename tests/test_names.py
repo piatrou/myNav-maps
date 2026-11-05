@@ -1,10 +1,10 @@
 from mapspack.config import load_countries
 from mapspack.names import display_name, normalize, search_names
 
-LEMESOS_CAPS = "ΛΕΜΕΣΌΣ"  # Greek, upper case, with tonos
-LEMESOS = "Λεμεσός"
-MALADZECHNA = "Маладзечна"  # Belarusian Cyrillic
-PACHNA = "Πάχνα"
+LEMESOS_CAPS = "\u039b\u0395\u039c\u0395\u03a3\u038c\u03a3"  # Greek, upper case, with tonos
+LEMESOS = "\u039b\u03b5\u03bc\u03b5\u03c3\u03cc\u03c2"
+MALADZECHNA = "\u041c\u0430\u043b\u0430\u0434\u0437\u0435\u0447\u043d\u0430"  # Belarusian Cyrillic
+PACHNA = "\u03a0\u03ac\u03c7\u03bd\u03b1"
 
 
 def test_normalize_folds_scripts_accents_case():

@@ -4,9 +4,9 @@ from mapspack import landmarks
 from mapspack.landmarks import spoken_brand
 from tests.osm import write_osm
 
-ALPHAMEGA = "ΆλφαΜέγα"
-EVROOPT = "Евроопт"
-SOSEDI = "Сосedi"  # mixed Cyrillic and Latin
+ALPHAMEGA = "\u0386\u03bb\u03c6\u03b1\u039c\u03ad\u03b3\u03b1"
+EVROOPT = "\u0415\u0432\u0440\u043e\u043e\u043f\u0442"
+SOSEDI = "\u0421\u043e\u0441edi"  # mixed Cyrillic and Latin
 
 
 def test_spoken_brand_order():
