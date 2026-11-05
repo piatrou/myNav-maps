@@ -5,10 +5,12 @@ import re
 
 import icu
 
-# The app applies the same ICU transform to the rider's query (Foundation StringTransform); keep them identical.
-ICU_TRANSFORM = "Any-Latin; Latin-ASCII; Lower"
+# Modern Greek romanization (UNGEGN, as on road signs: "Athinon", not the classical "Athenon"), then any other
+# script. The app applies the same ICU transform to the rider's query (Foundation StringTransform); keep them identical.
+LATIN = "Greek-Latin/UNGEGN; Any-Latin; Latin-ASCII"
+ICU_TRANSFORM = LATIN + "; Lower"
 _fold = icu.Transliterator.createInstance(ICU_TRANSFORM)
-_latin = icu.Transliterator.createInstance("Any-Latin; Latin-ASCII")
+_latin = icu.Transliterator.createInstance(LATIN)
 _junk = re.compile(r"[^0-9a-z ]+")
 _space = re.compile(r"\s+")
 
