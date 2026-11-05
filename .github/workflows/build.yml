@@ -18,11 +18,6 @@ concurrency:
   group: build-packs
   cancel-in-progress: false
 
-env:
-  R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
-  R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
-  R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -82,6 +77,10 @@ jobs:
           uv run python -m mapspack entry ${{ matrix.country }} work/extract.osm.pbf work/pack > work/entry.json
           python3 -c "import json; e=json.load(open('work/entry.json')); print(e['version'], [(f['name'], f['size']) for f in e['files']])"
       - name: Upload pack
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: |
           prefix=$(python3 -c "import json; e=json.load(open('work/entry.json')); print(f\"packs/{e['id']}/{e['version']}/\")")
           scripts/publish.sh pack work/pack "$prefix"
@@ -93,7 +92,7 @@ jobs:
 
   publish:
     needs: build
-    if: always() && needs.build.result != 'skipped'
+    if: ${{ !cancelled() && needs.build.result != 'skipped' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -105,6 +104,10 @@ jobs:
           path: entries
           pattern: entry-*
       - name: Switch manifest
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: |
           mkdir -p entries
           scripts/publish.sh get-manifest old.json
@@ -112,6 +115,10 @@ jobs:
           scripts/publish.sh put-manifest manifest.json
           python3 -c "import json; m=json.load(open('manifest.json')); print(sum(f['size'] for p in m['packs'] for f in p['files'])/1e9, 'GB in current packs'); [print(p['id'], p['version']) for p in m['packs']]"
       - name: Delete retired versions
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: |
           scripts/publish.sh list > listing.json
           uv run python -m mapspack retired manifest.json listing.json | while read -r prefix; do

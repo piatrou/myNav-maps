@@ -16,7 +16,10 @@ valhalla_build_config --mjolnir-tile-dir $W/tiles --mjolnir-tile-extract /out/va
   --mjolnir-admin $W/admins.sqlite --mjolnir-timezone $W/timezones.sqlite \
   --additional-data-elevation $W/elevation --mjolnir-concurrency $(nproc) > $W/valhalla.json
 step valhalla_build_admins -c $W/valhalla.json /in/extract.osm.pbf
-step valhalla_build_timezones $W/valhalla.json
+t0=$SECONDS  # this one writes the database to stdout
+valhalla_build_timezones > $W/timezones.sqlite 2> $W/step.log || { tail -40 $W/step.log; exit 1; }
+[ -s $W/timezones.sqlite ] || { echo "timezones.sqlite is empty" >&2; exit 1; }
+echo "valhalla_build_timezones: $((SECONDS - t0)) s, $(du -m $W/timezones.sqlite | cut -f1) MB"
 step valhalla_build_tiles -c $W/valhalla.json -e bss /in/extract.osm.pbf
 step valhalla_build_elevation --from-tiles --decompress -c $W/valhalla.json
 step valhalla_build_tiles -c $W/valhalla.json -s hierarchy /in/extract.osm.pbf

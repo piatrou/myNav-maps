@@ -20,11 +20,19 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+class PackIncomplete(Exception):
+    """A pack misses a file it must have: never publish a country without its map or its zones."""
+
+
 def pack_entry(country: Country, version: str, packdir: Path, prefix: str, outline: list[list[float]],
                published: str) -> dict:
-    """The manifest entry of a built pack: every pack file present in `packdir`, with size and sha256."""
+    """The manifest entry of a built pack: every pack file with size and sha256. zones.json exactly when the
+    country has zones. Raises PackIncomplete."""
+    names = [n for n in PACK_FILES if n != "zones.json" or country.zones]
+    if missing := [n for n in names if not (packdir / n).exists()]:
+        raise PackIncomplete(f"{country.id}: missing {', '.join(missing)}")
     files = [{"name": n, "size": (packdir / n).stat().st_size, "sha256": _sha256(packdir / n), "path": prefix + n}
-             for n in PACK_FILES if (packdir / n).exists()]
+             for n in names]
     return {"id": country.id, "name": country.name, "version": version, "valhalla": VALHALLA,
             "drivesOnLeft": country.drives_on_left, "published": published, "outline": outline, "files": files}
 

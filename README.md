@@ -22,6 +22,10 @@ GitHub Actions ([build.yml](.github/workflows/build.yml)) runs on the 2nd of eve
 
     gh workflow run build.yml -f countries=cyprus
 
+GitHub turns off scheduled workflows in a public repo after 60 days without a commit. If the repo has been quiet,
+check the Actions tab (re-enable the workflow) or run it by hand; the manifest's `generated` date shows how fresh
+the packs are.
+
 Locally (Docker; PyICU needs ICU: `brew install icu4c pkg-config`,
 `export PKG_CONFIG_PATH=$(brew --prefix icu4c)/lib/pkgconfig`):
 

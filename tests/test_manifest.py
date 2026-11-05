@@ -32,9 +32,11 @@ def test_retired_never_touches_unknown_countries():
 
 
 def test_entry_hashes_every_file(tmp_path):
+    for n in ("valhalla_tiles.tar", "landmarks.json", "basemap.mbtiles", "search.sqlite", "zones.json"):
+        (tmp_path / n).write_text("x")
     (tmp_path / "lanes.json").write_text("{}")
     e = pack_entry(CYPRUS, "2026-12-01", tmp_path, "packs/cyprus/2026-12-01/", [[0, 0]], "2026-12-02T00:00:00Z")
-    f = e["files"][0]
+    f = next(f for f in e["files"] if f["name"] == "lanes.json")
     assert f["name"] == "lanes.json" and f["size"] == 2 and f["sha256"] == hashlib.sha256(b"{}").hexdigest()
     assert f["path"] == "packs/cyprus/2026-12-01/lanes.json"
     assert e["valhalla"] == "3.9.1" and e["drivesOnLeft"] is True and e["name"] == "Cyprus"
@@ -44,3 +46,21 @@ def test_version_falls_back_to_today_without_header_stamp(tmp_path):
     from mapspack.cli import pbf_version
     from tests.osm import write_osm
     assert pbf_version(write_osm(tmp_path, nodes=[])) == datetime.now(UTC).strftime("%Y-%m-%d")
+
+
+def test_entry_refuses_a_pack_missing_a_file(tmp_path):
+    import pytest
+    from mapspack.manifest import PackIncomplete
+    for n in ("valhalla_tiles.tar", "lanes.json", "landmarks.json", "search.sqlite"):
+        (tmp_path / n).write_text("x")
+    with pytest.raises(PackIncomplete, match="basemap.mbtiles"):
+        pack_entry(load_countries()[0][1], "v", tmp_path, "p/", [[0, 0]], "t")  # Greece: no zones needed
+
+
+def test_entry_needs_zones_when_the_country_has_them(tmp_path):
+    import pytest
+    from mapspack.manifest import PackIncomplete
+    for n in ("valhalla_tiles.tar", "lanes.json", "landmarks.json", "basemap.mbtiles", "search.sqlite"):
+        (tmp_path / n).write_text("x")
+    with pytest.raises(PackIncomplete, match="zones.json"):
+        pack_entry(CYPRUS, "v", tmp_path, "p/", [[0, 0]], "t")

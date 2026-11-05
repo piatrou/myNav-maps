@@ -35,7 +35,10 @@ class _Handler(osmium.SimpleHandler):
 
     def area(self, a):
         if not a.from_way() and a.orig_id() in self.wanted:
-            self.shapes[a.orig_id()] = shapely.wkb.loads(self.wkb.create_multipolygon(a), hex=True)
+            try:
+                self.shapes[a.orig_id()] = shapely.wkb.loads(self.wkb.create_multipolygon(a), hex=True)
+            except RuntimeError:  # rings that do not close: left out, so build() names the relation
+                pass
 
 
 def rings(shape) -> list[list[float]]:
