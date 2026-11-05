@@ -42,6 +42,18 @@ Measured Valhalla build cost (3.9.1, 4 threads, with elevation):
 | Greece | 343 MB | 85 s | 1.8 GB | 518 MB |
 | France (reference) | 4.9 GB | 16 min | 4.4 GB | 4 GB |
 
+Measured packs, first Actions build (2026-11-05, extracts dated 2026-11-03, `place_details: true`), sizes in MB:
+
+| Country | `.osm.pbf` | Tables | Valhalla | Base map | `valhalla_tiles.tar` | `basemap.mbtiles` | `search.sqlite` | `landmarks.json` | `lanes.json` | `zones.json` | Pack |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Cyprus | 38 | 1.2 min | 0.5 min | 1.2 min | 73.1 | 39.4 | 19.1 | 0.9 | 0.2 | 0.01 | 133 |
+| Greece | 343 | 10.7 min | 2.9 min | 3.4 min | 579.1 | 383.0 | 110.3 | 5.6 | 1.3 | - | 1079 |
+| Belarus | 352 | 12.3 min | 2.1 min | 3.4 min | 406.2 | 604.8 | 412.5 | 5.4 | 1.5 | - | 1430 |
+
+All three: 2.64 GB of the 10 GB R2 free tier, so place details stay on. A monthly run keeps at most two versions
+per country for 7 days (about 5.3 GB at peak). A whole job takes 25 min for Greece or Belarus (4 min of it freeing
+disk on the runner).
+
 ## License
 
 Map data © OpenStreetMap contributors, available under the
