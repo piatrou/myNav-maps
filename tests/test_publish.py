@@ -26,9 +26,10 @@ if "--only-show-errors" in args and cmd[:2] == ["s3", "ls"]:
 def key(url): return url.split("/", 3)[3] if url.count("/") >= 3 else ""
 if cmd[:2] == ["s3", "ls"]:
     prefix = key(cmd[2])
-    for p in sorted(bucket.rglob("*")):
-        if p.is_file() and str(p.relative_to(bucket)).startswith(prefix):
-            print("2026-11-05 10:00:00 1 " + str(p.relative_to(bucket)))
+    found = [p for p in sorted(bucket.rglob("*")) if p.is_file() and str(p.relative_to(bucket)).startswith(prefix)]
+    for p in found:
+        print("2026-11-05 10:00:00 1 " + str(p.relative_to(bucket)))
+    sys.exit(0 if found else 1)  # the real CLI exits 1, silently, when nothing matches
 elif cmd[:2] == ["s3", "cp"]:
     src, dst = cmd[2], cmd[3]
     if src.startswith("s3://"):
@@ -94,3 +95,13 @@ def test_get_manifest_absent_is_not_an_error(tmp_path, env):
 def test_get_manifest_other_error_fails(tmp_path, env):
     r = run({**env, "FAKE_FAIL": "s3://mynav-maps/manifest.json"}, "get-manifest", str(tmp_path / "old.json"))
     assert r.returncode != 0
+
+
+def test_list_of_an_empty_bucket(tmp_path, env):
+    r = run(env, "list")
+    assert r.returncode == 0, r.stderr
+    assert json.loads(r.stdout) == {}
+
+
+def test_list_fails_on_a_real_error(tmp_path, env):
+    assert run({**env, "FAKE_FAIL": "s3://mynav-maps/packs/"}, "list").returncode != 0

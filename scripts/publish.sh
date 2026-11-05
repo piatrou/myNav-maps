@@ -41,7 +41,10 @@ case "${1:-}" in
   put-manifest)
     s3 cp --only-show-errors "$2" "s3://$BUCKET/manifest.json" --content-type application/json --cache-control no-cache ;;
   list)
-    listing=$(s3 ls "s3://$BUCKET/packs/" --recursive) || { echo "listing the bucket failed" >&2; exit 1; }
+    # exit 1 with nothing on stderr is how the CLI says "no objects"; anything on stderr is a real failure
+    errfile=$(mktemp)
+    listing=$(s3 ls "s3://$BUCKET/packs/" --recursive 2> "$errfile") || [ ! -s "$errfile" ] || {
+      cat "$errfile" >&2; echo "listing the bucket failed" >&2; exit 1; }
     python3 - "$listing" <<'PY'
 import json, sys
 out = {}
