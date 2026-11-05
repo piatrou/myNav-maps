@@ -1,0 +1,9 @@
+# OSM brand -> how an English voice says it; "" = say only the noun. Non-Latin keys as \u escapes.
+"\u0386\u03bb\u03c6\u03b1\u039c\u03ad\u03b3\u03b1": "AlphaMega"
+"Alphamega": "AlphaMega"
+"\u03a3\u03ba\u03bb\u03b1\u03b2\u03b5\u03bd\u03af\u03c4\u03b7\u03c2": "Sklavenitis"
+"\u039f\u03a0\u0391\u03a0": "OPAP"
+"Cyprus Post": ""
+"CYTA": "Cyta"
+"EKO": "Eko"
+"K-Pet": "K Pet"

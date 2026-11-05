@@ -1,0 +1,14 @@
+# One pack per country. Facts the app needs (driving side, zones) live here, never in app code.
+place_details: true
+countries:
+  - id: cyprus
+    name: Cyprus
+    geofabrik: europe/cyprus
+    drives_on_left: true
+    zones:
+      - id: cy-north
+        relation: 2514541  # boundary=administrative, admin_level=3, the north (border_type=occupied)
+        name: Northern Cyprus
+        warning: "This route crosses the Green Line into the north. You need a passport and separate insurance."
+  - {id: greece, name: Greece, geofabrik: europe/greece, drives_on_left: false, zones: []}
+  - {id: belarus, name: Belarus, geofabrik: europe/belarus, drives_on_left: false, zones: []}
