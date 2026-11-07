@@ -58,3 +58,9 @@ disk on the runner).
 
 Map data © OpenStreetMap contributors, available under the
 [Open Database License](https://www.openstreetmap.org/copyright). Elevation: Tilezen joerd (SRTM and others).
+
+## Privacy policy and terms (GitHub Pages)
+
+`docs/` is served by GitHub Pages at https://piatrou.github.io/myNav-maps/: the app's privacy policy (`/privacy/`, the
+URL App Store Connect gets) and terms (`/terms/`). They are copies of the texts the app shows; after changing those in
+the app, run `scripts/sync_legal.sh` and commit `docs/`.
