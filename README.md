@@ -1,6 +1,6 @@
-# myNav-maps
+# almaNav-maps
 
-Builds the offline country packs for the MyNav iOS app (motorcycle voice navigation) and publishes them to
+Builds the offline country packs for the AlmaNav iOS app (motorcycle voice navigation) and publishes them to
 Cloudflare R2. This repo holds only the build scripts and the GitHub Actions workflow; the packs themselves never
 go into git.
 
@@ -61,6 +61,6 @@ Map data © OpenStreetMap contributors, available under the
 
 ## Privacy policy and terms (GitHub Pages)
 
-`docs/` is served by GitHub Pages at https://piatrou.github.io/myNav-maps/: the app's privacy policy (`/privacy/`, the
+`docs/` is served by GitHub Pages at https://piatrou.github.io/almaNav-maps/: the app's privacy policy (`/privacy/`, the
 URL App Store Connect gets) and terms (`/terms/`). They are copies of the texts the app shows; after changing those in
 the app, run `scripts/sync_legal.sh` and commit `docs/`.

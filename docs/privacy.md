@@ -7,7 +7,7 @@ permalink: /privacy/
 
 **Version 1.0 — effective 7 November 2026**
 
-MyNav is a free hobby project made by a private individual, Aliaksandr Piatrou ("the author", "I"). This policy says
+AlmaNav is a free hobby project made by a private individual, Aliaksandr Piatrou ("the author", "I"). This policy says
 what data the App uses, where it goes and what you can do about it.
 
 ## The short version
@@ -51,7 +51,7 @@ for what it does with it.
 
 ## Your choices
 
-- Location access can be changed or withdrawn at any time in Settings › MyNav › Location. Navigation needs it.
+- Location access can be changed or withdrawn at any time in Settings › AlmaNav › Location. Navigation needs it.
 - Not using online search, place details or areas outside your packs avoids the related requests.
 - Deleting the App deletes everything it stored on your phone.
 

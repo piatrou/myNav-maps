@@ -1,7 +1,7 @@
 [project]
-name = "mynav-maps"
+name = "almanav-maps"
 version = "0.1.0"
-description = "Offline country packs for MyNav, built from OpenStreetMap"
+description = "Offline country packs for AlmaNav, built from OpenStreetMap"
 requires-python = ">=3.12"
 dependencies = [
     "osmium>=4.0",

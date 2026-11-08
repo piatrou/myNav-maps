@@ -5,7 +5,7 @@
 #   sync_legal.sh [<app Legal folder>]      default: the app checkout next to this repo
 set -euo pipefail
 cd "$(dirname "$0")/.."
-src=${1:-../app/MyNav/Settings/Legal}
+src=${1:-../app/AlmaNav/Settings/Legal}
 page() {  # <source name> <page title> <permalink> <out>
   { printf -- '---\ntitle: %s\npermalink: %s\n---\n\n' "$2" "$3"; cat "$src/$1.md"; } > "docs/$4"
 }

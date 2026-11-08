@@ -7,8 +7,8 @@ permalink: /terms/
 
 **Version 1.0 — effective 7 November 2026**
 
-MyNav is a free hobby project made by a private individual, Aliaksandr Piatrou ("the author", "I"). These Terms apply to your use
-of the MyNav app, its offline map packs and its voice guidance ("the App"). They supplement Apple's Standard Licensed
+AlmaNav is a free hobby project made by a private individual, Aliaksandr Piatrou ("the author", "I"). These Terms apply to your use
+of the AlmaNav app, its offline map packs and its voice guidance ("the App"). They supplement Apple's Standard Licensed
 Application End User License Agreement, under which you received the App; where the two conflict on the licence
 itself, Apple's agreement prevails.
 
@@ -59,7 +59,7 @@ refer to the wrong junction or landmark, or not come at all, and the phone or he
 map's road shape. They are not measured from the real road. **A grade may understate how tight a bend really is**,
 and a bend may be missed or called where there is none. The notes do not account for descent, crests, blind entries,
 road surface, camber, visibility, gravel, oncoming traffic or other conditions, and are **not an invitation to ride
-fast**. MyNav is not a racing app. The safe speed for a bend depends on your skill, your motorcycle, tyres, load,
+fast**. AlmaNav is not a racing app. The safe speed for a bend depends on your skill, your motorcycle, tyres, load,
 weather and road conditions, none of which the App knows. Never choose your speed by a bend note: judge every bend by
 what you see. Always obey speed limits and ride at a speed at which you can stop within the distance you can see.
 
@@ -137,7 +137,7 @@ IP address and handle data under their own policies. Details: Settings › About
 
 Map data © OpenStreetMap contributors, available under the Open Database License (ODbL)
 (openstreetmap.org/copyright). The map packs are derived from OpenStreetMap and are themselves available under the
-ODbL; the method used to build them is public at github.com/piatrou/myNav-maps. The App uses open-source software and
+ODbL; the method used to build them is public at github.com/piatrou/almaNav-maps. The App uses open-source software and
 data whose licences and credits are listed in the App under Settings › About › Acknowledgements.
 
 ## 12. Changes to these Terms
