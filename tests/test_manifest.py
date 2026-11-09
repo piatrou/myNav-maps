@@ -70,3 +70,13 @@ def test_entry_needs_zones_when_the_country_has_them(tmp_path):
         (tmp_path / n).write_text("x")
     with pytest.raises(PackIncomplete, match="zones.json"):
         pack_entry(CYPRUS, "v", tmp_path, "p/", [[0, 0]], "t")
+
+
+def test_entry_names_the_block(tmp_path):
+    for n in ("valhalla_tiles.tar", "landmarks.json", "basemap.mbtiles", "search.sqlite", "lanes.json"):
+        (tmp_path / n).write_text("x")
+    nc = next(c for c in load_countries()[0] if c.id == "north-carolina")
+    e = pack_entry(nc, "2026-12-01", tmp_path, "packs/north-carolina/2026-12-01/", [[0, 0]], "t")
+    assert e["block"] == "us-appalachia"
+    (tmp_path / "zones.json").write_text("x")
+    assert "block" not in pack_entry(CYPRUS, "2026-12-01", tmp_path, "p/", [[0, 0]], "t")

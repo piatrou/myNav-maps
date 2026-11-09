@@ -30,9 +30,19 @@ Locally (Docker; PyICU needs ICU: `brew install icu4c pkg-config`,
 `export PKG_CONFIG_PATH=$(brew --prefix icu4c)/lib/pkgconfig`):
 
     uv sync && uv run pytest
-    uv run python -m mapspack tables cyprus cyprus-latest.osm.pbf work/pack
-    scripts/build_valhalla.sh cyprus-latest.osm.pbf work/pack
-    scripts/build_basemap.sh cyprus-latest.osm.pbf work/pack
+    scripts/build_block.sh cyprus work/cyprus          # one pack: work/cyprus/cyprus/ + cyprus.entry.json
+    scripts/build_block.sh us-appalachia work/appalachia   # every member of a block
+
+## Blocks
+
+Countries with the same `block:` in [countries.yaml](countries.yaml) (North Carolina and Tennessee:
+`us-appalachia`) are built in one job, so the app routes across their border. The members' extracts are merged
+(osmium), Valhalla builds one graph over them, and the tiles are split per member outline: a tile goes to every
+member whose outline meets it, and a tile past every outline (an extract keeps whole ways) to the nearest member.
+Tiles of one build share graph ids, so the app opens any installed members' tiles as one graph. Base map, search
+and cue tables stay per member, from its own extract. All members carry the block id and one version (the oldest
+extract date); the app routes across members of one version only. A country with no `block` is a block of one,
+built as before. `gh workflow run build.yml -f countries=tennessee` builds the whole block.
 
 Measured Valhalla build cost (3.9.1, 4 threads, with elevation):
 
@@ -50,8 +60,19 @@ Measured packs, first Actions build (2026-11-05, extracts dated 2026-11-03, `pla
 | Greece | 343 | 10.7 min | 2.9 min | 3.4 min | 579.1 | 383.0 | 110.3 | 5.6 | 1.3 | - | 1079 |
 | Belarus | 352 | 12.3 min | 2.1 min | 3.4 min | 406.2 | 604.8 | 412.5 | 5.4 | 1.5 | - | 1430 |
 
-Belarus has since been replaced by North Carolina and Tennessee (not measured yet). All three: 2.64 GB of the 10 GB R2 free tier, so place details stay on. A monthly run keeps at most two versions
-per country for 7 days (about 5.3 GB at peak). A whole job takes 25 min for Greece or Belarus (4 min of it freeing
+Belarus has since been replaced by the `us-appalachia` block, measured locally (2026-11-09, extracts dated
+2026-11-08, Apple silicon, Docker), sizes in MB:
+
+| Country | `.osm.pbf` | Tables | Valhalla | Base map | `valhalla_tiles.tar` | `basemap.mbtiles` | `search.sqlite` | `landmarks.json` | `lanes.json` | Pack |
+|---|---|---|---|---|---|---|---|---|---|---|
+| North Carolina | 431 | 37 min | block | 2.5 min | 827.2 | 364.7 | 356.7 | 4.3 | 4.1 | 1557 |
+| Tennessee | 191 | 17 min | block | 1.6 min | 476.1 | 192.0 | 104.7 | 2.3 | 1.5 | 777 |
+| block (merged) | 623 | - | 3.0 min | - | 1232.9 (549 tiles) | - | - | - | - | - |
+
+The split gives North Carolina 312 tiles and Tennessee 267; 30 border tiles are in both (70 MB over the block's
+graph). Peak disk for the block job is about 5 GB (extracts, merged extract, block graph, split tars); tables are
+the slow step. Cyprus, Greece and the block: about 3.5 GB of the 10 GB R2 free tier, so place details stay on. A monthly run keeps at most two versions
+per country for 7 days (about 7 GB at peak). A whole job takes 25 min for Greece or Belarus (4 min of it freeing
 disk on the runner).
 
 ## License

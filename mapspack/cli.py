@@ -1,4 +1,4 @@
-"""Entry points for the workflow: python -m mapspack <tables|entry|split|merge|retired> ..."""
+"""Entry points for the workflow: python -m mapspack <tables|entry|version|plan|split|merge|retired> ..."""
 
 import argparse
 import json
@@ -9,7 +9,7 @@ from pathlib import Path
 import osmium
 
 from . import landmarks, lanes, manifest, outline, search, tiles, zones
-from .config import load_brands, load_countries
+from .config import load_brands, load_countries, plan
 
 
 def _country(country_id: str):
@@ -43,11 +43,19 @@ def tables(args):
 
 def entry(args):
     c, _ = _country(args.country)
-    version = pbf_version(args.pbf)
+    version = args.version or pbf_version(args.pbf)
     prefix = f"packs/{c.id}/{version}/"
     e = manifest.pack_entry(c, version, Path(args.packdir), prefix, outline.from_poly(outline.fetch(c.geofabrik)),
                             _now())
     json.dump(e, sys.stdout, ensure_ascii=False)
+
+
+def version(args):
+    print(min(pbf_version(p) for p in args.pbfs))
+
+
+def plan_blocks(args):
+    print(json.dumps(plan([w.strip() for w in args.wanted.split(",") if w.strip()])))
 
 
 def split(args):
@@ -81,7 +89,14 @@ def main(argv=None):
     s.set_defaults(fn=tables)
     s = sub.add_parser("entry", help="manifest entry of a built pack (JSON on stdout)")
     s.add_argument("country"); s.add_argument("pbf", type=Path); s.add_argument("packdir")
+    s.add_argument("--version", help="the block's version instead of the extract's date")
     s.set_defaults(fn=entry)
+    s = sub.add_parser("version", help="the oldest data date of the extracts: a block's version")
+    s.add_argument("pbfs", type=Path, nargs="+")
+    s.set_defaults(fn=version)
+    s = sub.add_parser("plan", help="blocks to build for comma-separated country ids (empty = all), JSON")
+    s.add_argument("wanted", nargs="?", default="")
+    s.set_defaults(fn=plan_blocks)
     s = sub.add_parser("split", help="a block's valhalla_tiles.tar split per member: <id>=<packdir> ...")
     s.add_argument("tar", type=Path); s.add_argument("members", nargs="+")
     s.set_defaults(fn=split)

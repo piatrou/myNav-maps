@@ -1,6 +1,6 @@
 import pytest
 
-from mapspack.config import blocks, load_countries
+from mapspack.config import blocks, load_countries, plan
 
 
 def test_states_share_a_block():
@@ -22,3 +22,11 @@ def test_block_id_must_not_clash_with_a_country(tmp_path):
                                      "  - {id: b, name: B, geofabrik: x/b, drives_on_left: false}\n")
     with pytest.raises(ValueError):
         blocks(load_countries(tmp_path / "c.yaml")[0])
+
+
+def test_plan_expands_a_member_to_its_block():
+    assert plan(["tennessee"]) == ["us-appalachia"]
+    assert plan([]) == ["cyprus", "greece", "us-appalachia"]
+    assert plan(["greece", "north-carolina", "tennessee"]) == ["greece", "us-appalachia"]
+    with pytest.raises(SystemExit):
+        plan(["nowhere"])

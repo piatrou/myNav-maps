@@ -33,8 +33,11 @@ def pack_entry(country: Country, version: str, packdir: Path, prefix: str, outli
         raise PackIncomplete(f"{country.id}: missing {', '.join(missing)}")
     files = [{"name": n, "size": (packdir / n).stat().st_size, "sha256": _sha256(packdir / n), "path": prefix + n}
              for n in names]
-    return {"id": country.id, "name": country.name, "version": version, "valhalla": VALHALLA,
-            "drivesOnLeft": country.drives_on_left, "published": published, "outline": outline, "files": files}
+    e = {"id": country.id, "name": country.name, "version": version, "valhalla": VALHALLA,
+         "drivesOnLeft": country.drives_on_left, "published": published, "outline": outline, "files": files}
+    if country.block:
+        e["block"] = country.block  # routed across the other members of the same version
+    return e
 
 
 def merge(old: dict | None, built: list[dict], now: str) -> dict:

@@ -47,7 +47,11 @@ def test_split_puts_border_tiles_in_both(tmp_path):
         assert t.extractfile(ROW[0]).read() == ROW[0].encode()
 
 
-def test_split_refuses_orphan_tiles(tmp_path):
+def test_split_gives_orphan_tile_to_nearest_member(tmp_path):
+    # an extract keeps whole ways, so the graph reaches past the outlines: such a tile goes to the nearest member
     _tar(tmp_path / "in.tar", ROW)
-    with pytest.raises(ValueError):
-        split(tmp_path / "in.tar", {"west": (_square(35.3, 35.4, -84.45, -84.3), tmp_path / "west")})
+    counts = split(tmp_path / "in.tar", {"west": (_square(35.3, 35.4, -84.45, -84.3), tmp_path / "west"),
+                                         "east": (_square(35.3, 35.4, -83.7, -83.55), tmp_path / "east")})
+    assert counts == {"west": 2, "east": 2}
+    assert _names(tmp_path / "west" / "valhalla_tiles.tar") == set(ROW[:2])
+    assert _names(tmp_path / "east" / "valhalla_tiles.tar") == set(ROW[2:])

@@ -28,8 +28,9 @@ def _polygons(rings: list[list[float]]) -> list[Polygon]:
 
 def split(tar: Path, members: dict[str, tuple[list[list[float]], Path]]) -> dict[str, int]:
     """Writes <out dir>/valhalla_tiles.tar per member (outline as flat lat, lon rings; holes ignored, so a border
-    tile is never lost) with every tile whose box meets the outline. Returns tiles per member. Raises ValueError
-    when a tile lands in no member: the block's outlines do not cover its graph."""
+    tile is never lost) with every tile whose box meets the outline. Returns tiles per member. An extract keeps whole
+    ways, so the graph reaches past the outlines: a tile no outline meets goes to the nearest member, keeping the
+    graph whole."""
     shapes = {m: _polygons(rings) for m, (rings, _) in members.items()}
     outs = {}
     for m, (_, d) in members.items():
@@ -44,7 +45,7 @@ def split(tar: Path, members: dict[str, tuple[list[list[float]], Path]]) -> dict
                 b = box(*tile_box(info.name))
                 hit = [m for m, polys in shapes.items() if any(p.intersects(b) for p in polys)]
                 if not hit:
-                    raise ValueError(f"tile {info.name} is outside every member")
+                    hit = [min(shapes, key=lambda m: min(p.distance(b) for p in shapes[m]))]
                 data = src.extractfile(info).read()
                 for m in hit:
                     i = tarfile.TarInfo(info.name)

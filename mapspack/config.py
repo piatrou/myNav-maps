@@ -54,6 +54,15 @@ def blocks(countries: list[Country]) -> dict[str, list[Country]]:
     return out
 
 
+def plan(wanted: list[str]) -> list[str]:
+    """Blocks to build, in list order: every block when `wanted` is empty, else the blocks of the wanted countries
+    (a member is never built alone: its graph would no longer match the other members'). Unknown ids exit."""
+    countries, _ = load_countries()
+    if unknown := set(wanted) - {c.id for c in countries}:
+        raise SystemExit(f"unknown countries: {sorted(unknown)}")
+    return [b for b, members in blocks(countries).items() if not wanted or any(c.id in wanted for c in members)]
+
+
 def load_brands(path: Path = ROOT / "brands.yaml") -> dict[str, str]:
     """OSM brand -> spoken English brand ("" = say only the noun)."""
     return {str(k): str(v) for k, v in (yaml.safe_load(Path(path).read_text()) or {}).items()}

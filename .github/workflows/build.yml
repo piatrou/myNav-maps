@@ -1,4 +1,4 @@
-# Monthly country packs: build each country, upload it under an immutable version path, then switch the manifest.
+# Monthly country packs: build each block (a country, or neighbours routed across as one graph), upload it under an immutable version path, then switch the manifest.
 name: Build packs
 
 on:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       countries:
-        description: "Comma-separated country ids (empty = all in countries.yaml)"
+        description: "Comma-separated country ids; a block member builds its whole block (empty = all)"
         required: false
         default: ""
 
@@ -22,7 +22,7 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     outputs:
-      countries: ${{ steps.pick.outputs.countries }}
+      blocks: ${{ steps.pick.outputs.blocks }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -30,15 +30,9 @@ jobs:
         env:
           WANTED: ${{ inputs.countries }}
         run: |
-          uv run --no-project --with pyyaml python - <<'PY' >> "$GITHUB_OUTPUT"
-          import json, os, yaml
-          ids = [c["id"] for c in yaml.safe_load(open("countries.yaml"))["countries"]]
-          wanted = [w.strip() for w in os.environ.get("WANTED", "").split(",") if w.strip()]
-          unknown = set(wanted) - set(ids)
-          if unknown:
-              raise SystemExit(f"unknown countries: {sorted(unknown)}")
-          print("countries=" + json.dumps(wanted or ids))
-          PY
+          # an unknown id fails here, not as an empty build
+          blocks=$(uv run --no-project --with pyyaml python -c 'import json, os; from mapspack.config import plan; print(json.dumps(plan([w.strip() for w in os.environ.get("WANTED", "").split(",") if w.strip()])))')
+          echo "blocks=$blocks" >> "$GITHUB_OUTPUT"
 
   build:
     needs: plan
@@ -48,7 +42,7 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        country: ${{ fromJson(needs.plan.outputs.countries) }}
+        block: ${{ fromJson(needs.plan.outputs.blocks) }}
     steps:
       - uses: actions/checkout@v4
       - name: Free disk
@@ -60,35 +54,24 @@ jobs:
         run: sudo apt-get update -q && sudo apt-get install -yq libicu-dev pkg-config
       - uses: astral-sh/setup-uv@v6
       - run: uv sync
-      - name: Download extract
-        run: |
-          path=$(uv run --no-project --with pyyaml python -c "import yaml; print(next(c['geofabrik'] for c in yaml.safe_load(open('countries.yaml'))['countries'] if c['id'] == '${{ matrix.country }}'))")
-          mkdir -p work
-          curl -fsSL -o work/extract.osm.pbf "https://download.geofabrik.de/${path}-latest.osm.pbf"
-          ls -l work/extract.osm.pbf
-      - name: Tables (lanes, landmarks, zones, search)
-        run: uv run python -m mapspack tables ${{ matrix.country }} work/extract.osm.pbf work/pack
-      - name: Valhalla tiles
-        run: scripts/build_valhalla.sh work/extract.osm.pbf work/pack
-      - name: Base map
-        run: scripts/build_basemap.sh work/extract.osm.pbf work/pack
-      - name: Manifest entry
-        run: |
-          uv run python -m mapspack entry ${{ matrix.country }} work/extract.osm.pbf work/pack > work/entry.json
-          python3 -c "import json; e=json.load(open('work/entry.json')); print(e['version'], [(f['name'], f['size']) for f in e['files']])"
-      - name: Upload pack
+      - name: Build the block's packs
+        run: scripts/build_block.sh ${{ matrix.block }} work
+      - name: Upload packs
         env:
           R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: |
-          prefix=$(python3 -c "import json; e=json.load(open('work/entry.json')); print(f\"packs/{e['id']}/{e['version']}/\")")
-          scripts/publish.sh pack work/pack "$prefix"
-          df -h /; du -sh work/pack
+          for entry in work/*.entry.json; do
+            id=$(basename "$entry" .entry.json)
+            prefix=$(python3 -c "import json; e=json.load(open('$entry')); print(f\"packs/{e['id']}/{e['version']}/\")")
+            scripts/publish.sh pack "work/$id" "$prefix"
+          done
+          df -h /; du -sh work/*/
       - uses: actions/upload-artifact@v4
         with:
-          name: entry-${{ matrix.country }}
-          path: work/entry.json
+          name: entry-${{ matrix.block }}
+          path: work/*.entry.json
 
   publish:
     needs: build
