@@ -1,4 +1,4 @@
-"""Entry points for the workflow: python -m mapspack <tables|entry|merge|retired> ..."""
+"""Entry points for the workflow: python -m mapspack <tables|entry|split|merge|retired> ..."""
 
 import argparse
 import json
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import osmium
 
-from . import landmarks, lanes, manifest, outline, search, zones
+from . import landmarks, lanes, manifest, outline, search, tiles, zones
 from .config import load_brands, load_countries
 
 
@@ -50,6 +50,16 @@ def entry(args):
     json.dump(e, sys.stdout, ensure_ascii=False)
 
 
+def split(args):
+    members = {}
+    for spec in args.members:
+        cid, _, packdir = spec.partition("=")
+        c, _ = _country(cid)
+        members[c.id] = (outline.from_poly(outline.fetch(c.geofabrik), tolerance=0), Path(packdir))
+    for cid, n in tiles.split(args.tar, members).items():
+        print(f"{cid}: {n} tiles")
+
+
 def merge(args):
     old = None if args.old == "-" or not Path(args.old).exists() else json.loads(Path(args.old).read_text())
     built = [json.loads(p.read_text()) for p in sorted(Path(args.entries).rglob("*.json"))]
@@ -72,6 +82,9 @@ def main(argv=None):
     s = sub.add_parser("entry", help="manifest entry of a built pack (JSON on stdout)")
     s.add_argument("country"); s.add_argument("pbf", type=Path); s.add_argument("packdir")
     s.set_defaults(fn=entry)
+    s = sub.add_parser("split", help="a block's valhalla_tiles.tar split per member: <id>=<packdir> ...")
+    s.add_argument("tar", type=Path); s.add_argument("members", nargs="+")
+    s.set_defaults(fn=split)
     s = sub.add_parser("merge", help="new manifest from the old one and built entries (JSON on stdout)")
     s.add_argument("old"); s.add_argument("entries")
     s.set_defaults(fn=merge)
