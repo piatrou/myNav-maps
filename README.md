@@ -12,7 +12,7 @@ A pack is one country (or a Geofabrik region for the big ones), built from the G
 - an offline base map (`.mbtiles`, OpenMapTiles schema);
 - a `manifest.json` entry: version, size, sha256.
 
-Countries: [countries.yaml](countries.yaml) (Cyprus, Greece, Belarus). The app reads
+Countries: [countries.yaml](countries.yaml) (Cyprus, Greece, North Carolina, Tennessee). The app reads
 `<R2_PUBLIC_URL>/manifest.json`: per country the version (the extract's date), Valhalla version, driving side,
 outline, and every file with size and sha256 under an immutable `packs/<id>/<version>/` path.
 
@@ -50,7 +50,7 @@ Measured packs, first Actions build (2026-11-05, extracts dated 2026-11-03, `pla
 | Greece | 343 | 10.7 min | 2.9 min | 3.4 min | 579.1 | 383.0 | 110.3 | 5.6 | 1.3 | - | 1079 |
 | Belarus | 352 | 12.3 min | 2.1 min | 3.4 min | 406.2 | 604.8 | 412.5 | 5.4 | 1.5 | - | 1430 |
 
-All three: 2.64 GB of the 10 GB R2 free tier, so place details stay on. A monthly run keeps at most two versions
+Belarus has since been replaced by North Carolina and Tennessee (not measured yet). All three: 2.64 GB of the 10 GB R2 free tier, so place details stay on. A monthly run keeps at most two versions
 per country for 7 days (about 5.3 GB at peak). A whole job takes 25 min for Greece or Belarus (4 min of it freeing
 disk on the runner).
 

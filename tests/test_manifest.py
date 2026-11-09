@@ -15,8 +15,14 @@ def test_merge_keeps_countries_not_rebuilt():
 
 
 def test_merge_orders_by_country_list_and_starts_empty():
-    new = merge(None, [{"id": "belarus", "version": "b"}, {"id": "cyprus", "version": "c"}], "t")
-    assert [p["id"] for p in new["packs"]] == ["cyprus", "belarus"]
+    new = merge(None, [{"id": "tennessee", "version": "b"}, {"id": "cyprus", "version": "c"}], "t")
+    assert [p["id"] for p in new["packs"]] == ["cyprus", "tennessee"]
+
+
+def test_merge_drops_countries_removed_from_the_list():
+    old = {"schema": 1, "packs": [{"id": "cyprus", "version": "v1"}, {"id": "belarus", "version": "v1"}]}
+    new = merge(old, [{"id": "cyprus", "version": "v2"}], "t")
+    assert [p["id"] for p in new["packs"]] == ["cyprus"]
 
 
 def test_retired_waits_seven_days():

@@ -38,12 +38,13 @@ def pack_entry(country: Country, version: str, packdir: Path, prefix: str, outli
 
 
 def merge(old: dict | None, built: list[dict], now: str) -> dict:
-    """The new manifest: entries of rebuilt countries replaced, the others kept as they were."""
+    """The new manifest: entries of rebuilt countries replaced, the others kept as they were; countries no longer
+    in countries.yaml dropped (their files in the bucket stay until removed by hand)."""
     packs = {p["id"]: p for p in (old or {}).get("packs", [])}
     packs.update({p["id"]: p for p in built})
     order = {c.id: i for i, c in enumerate(load_countries()[0])}
     return {"schema": 1, "generated": now,
-            "packs": sorted(packs.values(), key=lambda p: (order.get(p["id"], len(order)), p["id"]))}
+            "packs": sorted((p for p in packs.values() if p["id"] in order), key=lambda p: order[p["id"]])}
 
 
 def _time(s: str) -> datetime:

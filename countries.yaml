@@ -11,4 +11,5 @@ countries:
         name: Northern Cyprus
         warning: "This route crosses the Green Line into the north. You need a passport and separate insurance."
   - {id: greece, name: Greece, geofabrik: europe/greece, drives_on_left: false, zones: []}
-  - {id: belarus, name: Belarus, geofabrik: europe/belarus, drives_on_left: false, zones: []}
+  - {id: north-carolina, name: North Carolina, geofabrik: north-america/us/north-carolina, drives_on_left: false, zones: []}
+  - {id: tennessee, name: Tennessee, geofabrik: north-america/us/tennessee, drives_on_left: false, zones: []}

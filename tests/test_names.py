@@ -26,6 +26,6 @@ def test_search_names_collects_all_variants():
 
 def test_countries_yaml_loads():
     countries, place_details = load_countries()
-    assert [c.id for c in countries] == ["cyprus", "greece", "belarus"]
+    assert [c.id for c in countries] == ["cyprus", "greece", "north-carolina", "tennessee"]
     assert countries[0].drives_on_left and countries[0].zones[0].relation == 2514541
     assert place_details is True
